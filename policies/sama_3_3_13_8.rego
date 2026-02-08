@@ -4,56 +4,40 @@ import data.lib.utils
 
 # Control ID: 3.3.13.8
 # Description: high availability of the electronic banking services  should be ensured;
-# Requirement: Ensure compliance with 3.3.13.8 for aws_resource, google_resource, azurerm_resource, oci_resource
+# Requirement: Ensure compliance with 3.3.13.8 for AWS, GCP, Azure, OCI
 
 default allow = false
 
+
 # AWS Rule
 allow {
-    input.resource_type == "aws_resource"
-    # Add specific logic here based on implementation details
-    # For now, we check if the resource exists and has tags (placeholder)
-    count(input.resources) > 0
+    input.resource_type == "aws_lb"
+}
+allow {
+    input.resource_type == "aws_autoscaling_group"
+}
+allow {
+    input.resource_type == "aws_db_instance"
+    input.multi_az == true
 }
 
 # Google Cloud Rule
 allow {
-    input.resource_type == "google_resource"
-    count(input.resources) > 0
+    input.resource_type == "google_compute_region_instance_group_manager"
 }
 
 # Azure Rule
 allow {
-    input.resource_type == "azurerm_resource"
-    count(input.resources) > 0
+    input.resource_type == "azurerm_lb"
 }
 
 # OCI Rule
 allow {
-    input.resource_type == "oci_resource"
-    count(input.resources) > 0
+    input.resource_type == "oci_load_balancer"
 }
 
-deny[msg] {
-    input.resource_type == "aws_resource"
-    not allow
-    msg := sprintf("AWS resource '%v' does not comply with SAMA Control 3.3.13.8", [input.resource_name])
-}
 
 deny[msg] {
-    input.resource_type == "google_resource"
     not allow
-    msg := sprintf("Google resource '%v' does not comply with SAMA Control 3.3.13.8", [input.resource_name])
-}
-
-deny[msg] {
-    input.resource_type == "azurerm_resource"
-    not allow
-    msg := sprintf("Azure resource '%v' does not comply with SAMA Control 3.3.13.8", [input.resource_name])
-}
-
-deny[msg] {
-    input.resource_type == "oci_resource"
-    not allow
-    msg := sprintf("OCI resource '%v' does not comply with SAMA Control 3.3.13.8", [input.resource_name])
+    msg := sprintf("Resource '%v' does not comply with SAMA Control 3.3.13.8", [input.resource_name])
 }
